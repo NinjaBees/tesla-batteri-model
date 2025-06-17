@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla Model S Batteri Konfiguration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        label {
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        
+        input, select {
+            padding: 5px;
+            border-radius: 5px;
+            border: none;
+            background: #333;
+            color: white;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(78, 205, 196, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        
+        .battery-visualization {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .module {
+            border: 2px solid #4ecdc4;
+            border-radius: 8px;
+            margin: 10px;
+            padding: 15px;
+            display: inline-block;
+            background: rgba(78, 205, 196, 0.1);
+            position: relative;
+        }
+        
+        .module-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ff6b6b;
+            text-align: center;
+        }
+        
+        .cell-group {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .cell {
+            width: 12px;
+            height: 20px;
+            background: linear-gradient(180deg, #4ecdc4, #45b7b8);
+            border: 1px solid #333;
+            margin: 1px;
+            border-radius: 2px;
+            position: relative;
+        }
+        
+        .cell.positive {
+            background: linear-gradient(180deg, #4ecdc4, #45b7b8);
+        }
+        
+        .cell.negative {
+            background: linear-gradient(180deg, #ff6b6b, #e55656);
+        }
+        
+        .series-connector {
+            width: 15px;
+            height: 2px;
+            background: #ffa726;
+            margin: 0 2px;
+        }
+        
+        .parallel-connector {
+            width: 2px;
+            height: 15px;
+            background: #66bb6a;
+            margin: 2px 0;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 15px;
+            border-radius: 3px;
+        }
+        
+        .schematic {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .simplified-view {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .parallel-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border: 2px dashed #66bb6a;
+            border-radius: 8px;
+            margin: 5px;
+        }
+        
+        .series-group {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 2px dashed #ffa726;
+            border-radius: 8px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔋 Tesla Model S Batteri Konfiguration</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="seriesCells">Celler i Serie (S):</label>
+                <input type="number" id="seriesCells" value="96" min="50" max="120">
+            </div>
+            <div class="control-group">
+                <label for="parallelCells">Celler i Parallel (P):</label>
+                <input type="number" id="parallelCells" value="74" min="50" max="100">
+            </div>
+            <div class="control-group">
+                <label for="cellVoltage">Celle Spænding (V):</label>
+                <input type="number" id="cellVoltage" value="3.7" step="0.1" min="3.0" max="4.2">
+            </div>
+            <div class="control-group">
+                <label for="cellCapacity">Celle Kapacitet (mAh):</label>
+                <input type="number" id="cellCapacity" value="3350" min="3000" max="4000">
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCells">7104</div>
+                <div>Totale Celler</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="packVoltage">355.2V</div>
+                <div>Pakke Spænding</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="packCapacity">247.9 kWh</div>
+                <div>Pakke Kapacitet</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="packWeight">625 kg</div>
+                <div>Estimeret Vægt</div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(180deg, #4ecdc4, #45b7b8);"></div>
+                <span>Batteri Celle (18650)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffa726;"></div>
+                <span>Serie Forbindelse (+)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #66bb6a;"></div>
+                <span>Parallel Forbindelse</span>
+            </div>
+        </div>
+        
+        <div class="battery-visualization">
+            <h3 style="text-align: center; color: #4ecdc4;">Forenklet Batteripakke Struktur</h3>
+            <div id="batteryModules"></div>
+        </div>
+        
+        <div class="schematic">
+            <h3 style="color: #4ecdc4;">Elektrisk Skematik - Serie og Parallel Princip</h3>
+            <div class="simplified-view" id="schematicView"></div>
+            <p style="margin-top: 20px; color: #ccc;">
+                <strong>Serie forbindelse:</strong> Øger spændingen (V = V₁ + V₂ + V₃...)<br>
+                <strong>Parallel forbindelse:</strong> Øger kapaciteten (Ah = Ah₁ + Ah₂ + Ah₃...)
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function updateCalculations() {
+            const seriesCells = parseInt(document.getElementById('seriesCells').value);
+            const parallelCells = parseInt(document.getElementById('parallelCells').value);
+            const cellVoltage = parseFloat(document.getElementById('cellVoltage').value);
+            const cellCapacity = parseInt(document.getElementById('cellCapacity').value);
+            
+            // Beregninger
+            const totalCells = seriesCells * parallelCells;
+            const packVoltage = seriesCells * cellVoltage;
+            const packCapacityAh = parallelCells * (cellCapacity / 1000); // Convert mAh to Ah
+            const packCapacityKwh = (packVoltage * packCapacityAh) / 1000;
+            const estimatedWeight = totalCells * 0.045; // ~45g per 18650 cell, plus packaging
+            
+            // Opdater statistikker
+            document.getElementById('totalCells').textContent = totalCells.toLocaleString();
+            document.getElementById('packVoltage').textContent = packVoltage.toFixed(1) + 'V';
+            document.getElementById('packCapacity').textContent = packCapacityKwh.toFixed(1) + ' kWh';
+            document.getElementById('packWeight').textContent = Math.round(estimatedWeight) + ' kg';
+            
+            // Opdater visualisering
+            createBatteryVisualization(seriesCells, parallelCells);
+            createSchematic(seriesCells, parallelCells);
+        }
+        
+        function createBatteryVisualization(seriesCells, parallelCells) {
+            const container = document.getElementById('batteryModules');
+            container.innerHTML = '';
+            
+            // Vis første 4 moduler som eksempel
+            const modulesToShow = Math.min(4, Math.ceil(seriesCells / 12));
+            const cellsPerModule = Math.ceil(seriesCells / modulesToShow);
+            const parallelGroupsToShow = Math.min(8, parallelCells);
+            
+            for (let module = 0; module < modulesToShow; module++) {
+                const moduleDiv = document.createElement('div');
+                moduleDiv.className = 'module';
+                moduleDiv.innerHTML = `<div class="module-title">Modul ${module + 1}</div>`;
+                
+                // Vis serie forbindelser
+                const seriesGroup = document.createElement('div');
+                seriesGroup.className = 'series-group';
+                
+                for (let s = 0; s < Math.min(cellsPerModule, 8); s++) {
+                    const cellGroup = document.createElement('div');
+                    cellGroup.className = 'cell-group';
+                    
+                    // Parallel gruppe
+                    const parallelGroup = document.createElement('div');
+                    parallelGroup.className = 'parallel-group';
+                    
+                    for (let p = 0; p < Math.min(parallelGroupsToShow, 6); p++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        parallelGroup.appendChild(cell);
+                        
+                        if (p < Math.min(parallelGroupsToShow, 6) - 1) {
+                            const connector = document.createElement('div');
+                            connector.className = 'parallel-connector';
+                            parallelGroup.appendChild(connector);
+                        }
+                    }
+                    
+                    if (parallelCells > 6) {
+                        const dots = document.createElement('div');
+                        dots.textContent = '...';
+                        dots.style.color = '#666';
+                        dots.style.fontSize = '12px';
+                        parallelGroup.appendChild(dots);
+                    }
+                    
+                    cellGroup.appendChild(parallelGroup);
+                    seriesGroup.appendChild(cellGroup);
+                    
+                    if (s < Math.min(cellsPerModule, 8) - 1) {
+                        const connector = document.createElement('div');
+                        connector.className = 'series-connector';
+                        seriesGroup.appendChild(connector);
+                    }
+                }
+                
+                if (cellsPerModule > 8) {
+                    const dots = document.createElement('div');
+                    dots.textContent = '... flere serie grupper';
+                    dots.style.color = '#666';
+                    dots.style.fontSize = '12px';
+                    dots.style.textAlign = 'center';
+                    seriesGroup.appendChild(dots);
+                }
+                
+                moduleDiv.appendChild(seriesGroup);
+                container.appendChild(moduleDiv);
+            }
+            
+            if (modulesToShow < Math.ceil(seriesCells / 12)) {
+                const moreModules = document.createElement('div');
+                moreModules.textContent = `... + ${Math.ceil(seriesCells / 12) - modulesToShow} flere moduler`;
+                moreModules.style.color = '#666';
+                moreModules.style.textAlign = 'center';
+                moreModules.style.margin = '20px';
+                container.appendChild(moreModules);
+            }
+        }
+        
+        function createSchematic(seriesCells, parallelCells) {
+            const container = document.getElementById('schematicView');
+            container.innerHTML = '';
+            
+            // Forenklet skematik med 3 serie grupper af 3 parallel celler hver
+            for (let s = 0; s < 3; s++) {
+                const seriesGroup = document.createElement('div');
+                seriesGroup.className = 'series-group';
+                seriesGroup.style.border = '2px dashed #ffa726';
+                
+                const parallelGroup = document.createElement('div');
+                parallelGroup.className = 'parallel-group';
+                parallelGroup.style.border = '2px dashed #66bb6a';
+                
+                for (let p = 0; p < 3; p++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.style.width = '20px';
+                    cell.style.height = '30px';
+                    parallelGroup.appendChild(cell);
+                }
+                
+                const label = document.createElement('div');
+                label.textContent = `${parallelCells}P`;
+                label.style.fontSize = '12px';
+                label.style.color = '#66bb6a';
+                label.style.marginTop = '5px';
+                parallelGroup.appendChild(label);
+                
+                seriesGroup.appendChild(parallelGroup);
+                container.appendChild(seriesGroup);
+                
+                if (s < 2) {
+                    const connector = document.createElement('div');
+                    connector.className = 'series-connector';
+                    connector.style.width = '30px';
+                    connector.style.background = '#ffa726';
+                    container.appendChild(connector);
+                }
+            }
+            
+            const configLabel = document.createElement('div');
+            configLabel.textContent = `Konfiguration: ${seriesCells}S${parallelCells}P`;
+            configLabel.style.marginTop = '15px';
+            configLabel.style.fontSize = '16px';
+            configLabel.style.fontWeight = 'bold';
+            configLabel.style.color = '#4ecdc4';
+            container.appendChild(configLabel);
+        }
+        
+        // Event listeners
+        document.getElementById('seriesCells').addEventListener('input', updateCalculations);
+        document.getElementById('parallelCells').addEventListener('input', updateCalculations);
+        document.getElementById('cellVoltage').addEventListener('input', updateCalculations);
+        document.getElementById('cellCapacity').addEventListener('input', updateCalculations);
+        
+        // Initial beregning
+        updateCalculations();
+    </script>
+</body>
+</html>
